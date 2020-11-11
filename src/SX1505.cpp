@@ -3,11 +3,18 @@
 #include <Arduino.h>
 #include <Wire.h>
 
+// Universal Serial Monitor Config
+#if defined (ARDUINO_ARCH_AVR)
+#define SerialMonitorInterface Serial
+#elif defined(ARDUINO_ARCH_SAMD)
+#define SerialMonitorInterface SerialUSB
+#endif
+
 SX1505::SX1505() {
   // default constructor
 }
 
-int SX1505::begin() {
+void SX1505::begin() {
   init();
 }
 
@@ -42,16 +49,15 @@ uint8_t SX1505::read(uint8_t regAddr) {
   Wire.requestFrom(SX1505_I2CADDR, 1);
   
   value = (uint8_t)Wire.read();
-}
-
-// return data from data register
-uint8_t SX1505::getRegData(void) {
-  value = 0x00;
-  value = read(SX1505_REG_DATA);
   return value;
 }
 
-/*TinyJoystick*/
+// set data from data register
+void SX1505::setRegData(void) {
+  value = read(SX1505_REG_DATA);
+}
+
+/*Tiny Joystick*/
 
 TinyJoystick::TinyJoystick() {
   // default constructor
@@ -65,7 +71,7 @@ void TinyJoystick::getPosition(void) {
   left = 0;
   right = 0;
 
-  getRegData();
+  setRegData();
 
   uint8_t rawValue = ~value;  // flip bits since active low
   
@@ -89,13 +95,15 @@ void TinyJoystick::getPosition(void) {
   }
 }
 
+/*Tiny Rotary*/
+
 TinyRotary::TinyRotary() {
   // default constructor
 }
 
 // return rotary position
 uint8_t TinyRotary::getPosition(void) {
-  getRegData();
+  setRegData();
 
   uint8_t rotaryDirection = 0x00;          // initialize all 0
   uint8_t rawValue = ~value;               // flip bits since active low

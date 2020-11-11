@@ -47,11 +47,11 @@
 class SX1505 {
 public:
 	SX1505(void);
-	int begin(void);
-  int init(void);
+	void begin(void);
+    int init(void);
 	void write(uint8_t, uint8_t);
 	uint8_t read(uint8_t);
-	uint8_t getRegData(void);
+	void setRegData(void);
 
 	uint8_t value;
 	uint8_t debug;
@@ -61,8 +61,8 @@ public:
 class TinyJoystick : public SX1505 {
 public:
 	TinyJoystick(void);
-  void getPosition(void);
-  uint8_t active = 0;
+    void getPosition(void);
+    uint8_t active = 0;
 	uint8_t up = 0;
 	uint8_t down = 0;
 	uint8_t left = 0;
