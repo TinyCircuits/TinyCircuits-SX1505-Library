@@ -53,5 +53,9 @@ void writeToMonitor() {
   else if(joystick.right) {
     SerialMonitorInterface.println("RIGHT");
   }
+  else if(joystick.press) {
+    SerialMonitorInterface.println("PRESSED");
+  }
+  
   delay(100);
 }

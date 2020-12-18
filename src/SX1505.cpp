@@ -3,18 +3,11 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-// Universal Serial Monitor Config
-#if defined (ARDUINO_ARCH_AVR)
-#define SerialMonitorInterface Serial
-#elif defined(ARDUINO_ARCH_SAMD)
-#define SerialMonitorInterface SerialUSB
-#endif
-
 SX1505::SX1505() {
   // default constructor
 }
 
-void SX1505::begin() {
+int SX1505::begin() {
   init();
 }
 
@@ -49,18 +42,50 @@ uint8_t SX1505::read(uint8_t regAddr) {
   Wire.requestFrom(SX1505_I2CADDR, 1);
   
   value = (uint8_t)Wire.read();
+}
+
+// return data from data register
+uint8_t SX1505::getRegData(void) {
+  value = 0x00;
+  value = read(SX1505_REG_DATA);
   return value;
 }
 
-// set data from data register
-void SX1505::setRegData(void) {
-  value = read(SX1505_REG_DATA);
+// enable interrupts using the mask passed (active low mask)
+void SX1505::setInt(uint8_t mask) {
+  write(SX1505_REG_INTMASK, mask);
+
+  // since the switches are active low, for both Joystick and Rotary
+  // Switch Wirelings, set the edge sensitivity to a falling edge
+  if(mask == ROTARY_INT_MASK) {
+    //write(SX1505_REG_SENSE_HI, 0x02); // falling edge for I/O[4]
+    write(SX1505_REG_SENSE_HI, 0x03); // both edges for I/O[4]
+  } else if(mask == JOYSTICK_INT_MASK) {
+    //write(SX1505_REG_SENSE_HI, 0x82); // falling edge for I/O[7], I/O[4]
+    write(SX1505_REG_SENSE_HI, 0xC3); // both edges for I/O[7], I/O[4]
+  }
+
+  //write(SX1505_REG_SENSE_LO, 0x8A);   // falling edge for I/O[3], I/O[1], I/O[0]
+  write(SX1505_REG_SENSE_LO, 0xCF);   // both edges for I/O[3], I/O[1], I/O[0]
+
+  // NOTE: falling edge variants aren't detecting "0" properly on Rotary Switch Wireling
 }
 
-/*Tiny Joystick*/
+// clear interrupts by writing 0xFF to SX1505_REG_INT_SRC
+void SX1505::clearInt(void) {
+  write(SX1505_REG_INT_SRC, 0xFF);
+  // this action also clears the corresponding bits in SX1505_REG_EVENT_STATUS
+}
+
+/*TinyJoystick*/
 
 TinyJoystick::TinyJoystick() {
   // default constructor
+}
+
+// enable interrupts for Joystick Wireling
+void TinyJoystick::setInterrupt() {
+  setInt(JOYSTICK_INT_MASK);
 }
 
 // return joystick position
@@ -70,8 +95,9 @@ void TinyJoystick::getPosition(void) {
   down = 0;
   left = 0;
   right = 0;
+  press = 0;
 
-  setRegData();
+  getRegData();
 
   uint8_t rawValue = ~value;  // flip bits since active low
   
@@ -87,23 +113,30 @@ void TinyJoystick::getPosition(void) {
   if(rawValue & JOYSTICK_RIGHT) {
     right = 1;
   }
+  if(rawValue & JOYSTICK_PRESS) {
+    press = 1;
+  }
   if (rawValue == JOYSTICK_NEUTRAL){
     up = 0;
     down = 0;
     left = 0;
     right = 0;
+    press = 0;
   }
 }
-
-/*Tiny Rotary*/
 
 TinyRotary::TinyRotary() {
   // default constructor
 }
 
+// enable interrupts for Rotary Switch Wireling
+void TinyRotary::setInterrupt() {
+  setInt(ROTARY_INT_MASK);
+}
+
 // return rotary position
 uint8_t TinyRotary::getPosition(void) {
-  setRegData();
+  getRegData();
 
   uint8_t rotaryDirection = 0x00;          // initialize all 0
   uint8_t rawValue = ~value;               // flip bits since active low

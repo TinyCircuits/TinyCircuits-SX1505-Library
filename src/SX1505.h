@@ -42,16 +42,25 @@
 #define JOYSTICK_PRESS			  0x10 	// 171 raw
 #define JOYSTICK_NEUTRAL		  0x44	// 187 raw
 
+// use to enable interrupts on all joystick inputs (active low)
+#define JOYSTICK_INT_MASK			0x64
+
+// use to enable interrupts on all rotary inputs (active low)
+#define ROTARY_INT_MASK				0xE4
+
+
 #include <inttypes.h>
 
 class SX1505 {
 public:
 	SX1505(void);
-	void begin(void);
-    int init(void);
+	int begin(void);
+  int init(void);
 	void write(uint8_t, uint8_t);
 	uint8_t read(uint8_t);
-	void setRegData(void);
+	uint8_t getRegData(void);
+	void setInt(uint8_t);
+	void clearInt(void);
 
 	uint8_t value;
 	uint8_t debug;
@@ -61,17 +70,20 @@ public:
 class TinyJoystick : public SX1505 {
 public:
 	TinyJoystick(void);
-    void getPosition(void);
-    uint8_t active = 0;
+	void setInterrupt(void);
+  void getPosition(void);
+  uint8_t active = 0;
 	uint8_t up = 0;
 	uint8_t down = 0;
 	uint8_t left = 0;
 	uint8_t right = 0;
+	uint8_t press = 0;
 };
 
 class TinyRotary : public SX1505 {
 public:
 	TinyRotary(void);
+	void setInterrupt(void);
 	uint8_t getPosition(void);
 };
 

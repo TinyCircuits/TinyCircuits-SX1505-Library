@@ -1,18 +1,40 @@
+#######################################
 # Syntax Coloring Map For SX1505
+#######################################
 
+
+#######################################
 # Datatypes (KEYWORD1)
-SX1505		KEYWORD1
-TinyJoystick	KEYWORD1
-TinyRotary      KEYWORD1
+#######################################
+SX1505				KEYWORD1
+TinyJoystick		KEYWORD1
+TinyRotary      	KEYWORD1
 
+
+#######################################
 # Methods and Functions (KEYWORD2)
-getRegData	KEYWORD2
-getPosition	KEYWORD2
+#######################################
+getRegData			KEYWORD2
+getPosition			KEYWORD2
+setInterrupt		KEYWORD2
+clearInt			KEYWORD2
 
+up					KEYWORD2
+down				KEYWORD2
+left				KEYWORD2
+right				KEYWORD2
+press				KEYWORD2
+
+
+#######################################
 # Constants (LITERAL1)
-JOYSTICK_UP	LITERAL1
-JOYSTICK_DOWN	LITERAL1
-JOYSTICK_LEFT	LITERAL1
-JOYSTICK_RIGHT	LITERAL1
-JOYSTICK_PRESS	LITERAL1
+#######################################
+JOYSTICK_UP			LITERAL1
+JOYSTICK_DOWN		LITERAL1
+JOYSTICK_LEFT		LITERAL1
+JOYSTICK_RIGHT		LITERAL1
+JOYSTICK_PRESS		LITERAL1
 JOYSTICK_NEUTRAL	LITERAL1
+
+JOYSTICK_INT_MASK	LITERAL1
+ROTARY_INT_MASK		LITERAL1
